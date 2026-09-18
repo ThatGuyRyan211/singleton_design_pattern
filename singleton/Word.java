@@ -1,7 +1,5 @@
+//Author: Ryan Callahan
 
-/**
- * Represents one vocabulary word and the information shown on its flash card.
- */
 public class Word {
     /** Width inside each flash-card border. */
     private static final int CARD_WIDTH = 138;

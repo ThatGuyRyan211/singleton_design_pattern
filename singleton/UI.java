@@ -1,5 +1,4 @@
 import java.util.Scanner;
-
 /**
  * Runs the console user interface for the flash-card study application.
  */
