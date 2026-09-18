@@ -1,4 +1,3 @@
-package singleton;
 import java.util.Scanner;
 
 /**

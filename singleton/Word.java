@@ -3,22 +3,37 @@
  * Represents one vocabulary word and the information shown on its flash card.
  */
 public class Word {
-    /** Vocabulary word displayed on the front of the card. */
+    /** Width inside each flash-card border. */
+    private static final int CARD_WIDTH = 138;
+
+    /** ANSI color for the word and part of speech. */
+    private static final String CYAN = "\u001B[36m";
+
+    /** ANSI color for the definition and example. */
+    private static final String PURPLE = "\u001B[35m";
+
+    /** ANSI code that returns text to the normal terminal color. */
+    private static final String RESET = "\u001B[0m";
+
+    /** The vocabulary word. */
     private String word;
-    /** Part of speech for the vocabulary word. */
+
+    /** The word's part of speech. */
     private String type;
-    /** Meaning of the vocabulary word. */
+
+    /** The definition of the word. */
     private String definition;
-    /** Sentence that demonstrates how the word is used. */
+
+    /** An example sentence using the word. */
     private String sentence;
 
     /**
-     * Creates a fully populated vocabulary word.
+     * Creates a vocabulary word for a flash card.
      *
      * @param word the vocabulary word
-     * @param type the word's part of speech
+     * @param type the part of speech
      * @param definition the word's definition
-     * @param sentence an example sentence containing the word
+     * @param sentence an example sentence
      */
     public Word(String word, String type, String definition, String sentence) {
         this.word = word;
@@ -28,44 +43,68 @@ public class Word {
     }
 
     /**
-     * Formats the front side of this flash card.
+     * Creates the front of the flash card.
      *
-     * @return a boxed card containing only the vocabulary word
+     * @return a formatted card with the vocabulary word
      */
     public String getFlashCardFront() {
-        return makeCard("Word: " + word);
+        StringBuilder card = new StringBuilder();
+        card.append(getBorder());
+        card.append(getLine("Word: " + CYAN + word.toUpperCase() + RESET));
+        card.append(getLine(""));
+        card.append(getLine(""));
+        card.append(getLine(""));
+        card.append(getBorder());
+
+        return card.toString();
     }
 
     /**
-     * Formats the back side of this flash card.
+     * Creates the back of the flash card.
      *
-     * @return a boxed card containing the word's details
+     * @return a formatted card with the word details
      */
     public String getFlashCardBack() {
-        return makeCard("Word: " + word + "\nPart of Speech: " + type
-                + "\nDefinition: " + definition + "\nExample: " + sentence);
+        StringBuilder card = new StringBuilder();
+        card.append(getBorder());
+        card.append(getLine("Word: " + CYAN + word.toUpperCase() + RESET));
+        card.append(getLine("Part of Speech: " + CYAN + type + RESET));
+        card.append(getLine("Definition: " + PURPLE + definition + RESET));
+        card.append(getLine("Example: " + PURPLE + sentence + RESET));
+        card.append(getBorder());
+
+        return card.toString();
     }
 
     /**
-     * Places text inside a fixed-width ASCII card.
+     * Creates the top or bottom border of a flash card.
      *
-     * @param content one or more lines of card text
-     * @return a formatted card
+     * @return a dashed card border
      */
-    private String makeCard(String content) {
-        final int width = 118;
-        String border = "+" + "-".repeat(width) + "+\n";
-        StringBuilder card = new StringBuilder(border);
+    private String getBorder() {
+        return "+" + "-".repeat(CARD_WIDTH) + "+\n";
+    }
 
-        for (String line : content.split("\\n")) {
-            String remaining = line;
-            while (remaining.length() > width - 2) {
-                card.append(String.format("| %-" + (width - 2) + "s |%n",
-                        remaining.substring(0, width - 2)));
-                remaining = remaining.substring(width - 2);
-            }
-            card.append(String.format("| %-" + (width - 2) + "s |%n", remaining));
-        }
-        return card.append(border).toString();
+    /**
+     * Creates one padded row inside the flash card.
+     *
+     * @param text the text to place on the row
+     * @return one formatted card row
+     */
+    private String getLine(String text) {
+        int visibleLength = getVisibleLength(text);
+        int spacesNeeded = CARD_WIDTH - visibleLength - 2;
+
+        return "| " + text + " ".repeat(Math.max(0, spacesNeeded)) + " |\n";
+    }
+
+    /**
+     * Finds a string's length without counting ANSI color codes.
+     *
+     * @param text text that may contain color codes
+     * @return the visible number of characters
+     */
+    private int getVisibleLength(String text) {
+        return text.replaceAll("\\u001B\\[[;\\d]*m", "").length();
     }
 }
